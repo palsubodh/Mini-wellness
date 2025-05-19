@@ -1,21 +1,22 @@
-
 import nodemailer from 'nodemailer';
-
+import { config } from  '../config';
 
 const transporter = nodemailer.createTransport({
-    service: "Gmail",
-      auth: {
-        user: process.env.NODEMAILER_AUTH_EMAIL,
-        pass: process.env.NODEMAILER_AUTH_PASS,
-      },
-
+  service: 'gmail',
+  secure: true,
+  port: 465,
+  auth: {
+    user: config.emailUser,
+    pass: config.emailPass,
+  },
 });
 
 interface MailOption {
-    to: string,
-    subject: string,
-    text?: string,
-    html?: string,
+  to: string;
+  subject: string;
+  text?: string;
+  html?: string;
+  from?: string;
 }
 
 export const sendEmail = async ({
@@ -24,19 +25,20 @@ export const sendEmail = async ({
   text,
   html,
   from,
-}: MailOption & { from?: string }) => {
+}: MailOption) => {
   const mailOptions = {
-    from: from ,
+    from: from || config.emailUser,
     to,
     subject,
-    ...(!!text ? { text } : { html }),
+    ...(text ? { text } : { html }),
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    return {success: true, data: info}
-} catch (error) {
-    return {success: false, error: error}
+    console.log('Email sent:', info.response);
+    return { success: true };
+  } catch (error: any) {
+    console.error('Email send error:', error);
+    return { success: false, error: error.message || 'Unknown error' };
   }
 };
-

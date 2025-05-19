@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const slotSchema = new mongoose.Schema({
   trainerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
